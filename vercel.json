@@ -1,11 +1,5 @@
 {
   "version": 2,
-  "functions": {
-    "api/**/*.js": {
-      "runtime": "nodejs18.x",
-      "maxDuration": 30
-    }
-  },
   "routes": [
     { "src": "/api/songs",             "dest": "/api/songs.js"   },
     { "src": "/api/spotify/auth",      "dest": "/api/spotify.js" },
