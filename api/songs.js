@@ -175,7 +175,7 @@ async function enrichWithSpotify(tracks, minYear) {
 // ── Main handler ──
 export default async function handler(req, res) {
     // CORS — allow your Netlify frontend
-    res.setHeader('Access-Control-Allow-Origin', process.env.ALLOWED_ORIGIN || '*');
+    res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
