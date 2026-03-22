@@ -7,7 +7,7 @@ const SPOTIFY_ID    = process.env.SPOTIFY_CLIENT_ID;
 const REDIRECT_URI  = process.env.SPOTIFY_REDIRECT_URI;
 
 export default async function handler(req, res) {
-    res.setHeader('Access-Control-Allow-Origin', process.env.FRONTEND_URL || '*');
+    res.setHeader('Access-Control-Allow-Origin', '*');
     if (req.method === 'OPTIONS') return res.status(200).end();
 
     const scopes = [
