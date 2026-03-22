@@ -10,6 +10,9 @@ const REDIRECT_URI   = process.env.SPOTIFY_REDIRECT_URI;
 const FRONTEND_URL   = process.env.FRONTEND_URL;
 
 export default async function handler(req, res) {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
     const { code, error } = req.query;
 
     if (error) {
