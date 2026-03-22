@@ -8,6 +8,10 @@ const MOOD_EMOJIS = {
     romantic:'❤️', angry:'😤', nostalgic:'🌅', focus:'🎯'
 };
 
+export const config = {
+    api: { bodyParser: true }
+};
+
 export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -16,7 +20,15 @@ export default async function handler(req, res) {
     if (req.method === 'OPTIONS') return res.status(200).end();
     if (req.method !== 'POST')    return res.status(405).json({ error: 'Method not allowed' });
 
-    const { accessToken, mood, songs, playlistName } = req.body;
+    // Parse body manually if needed
+    let body = req.body;
+    if (typeof body === 'string') {
+        try { body = JSON.parse(body); } catch(e) {
+            return res.status(400).json({ error: 'Invalid JSON body' });
+        }
+    }
+
+    const { accessToken, mood, songs, playlistName } = body || {};
 
     if (!accessToken) return res.status(401).json({ error: 'No Spotify access token provided' });
     if (!songs?.length) return res.status(400).json({ error: 'No songs to export' });
@@ -50,18 +62,18 @@ export default async function handler(req, res) {
             return res.status(500).json({ error: 'Failed to create playlist on Spotify' });
         }
 
-        // Step 3 — Find Spotify track IDs (variable renamed to avoid conflict with outer res)
+        // Step 3 — Find Spotify track IDs
         const uriResults = await Promise.allSettled(
             songs.map(async song => {
                 if (song.spotifyId) return `spotify:track:${song.spotifyId}`;
 
-                const q           = encodeURIComponent(`track:"${song.name}" artist:"${song.artist}"`);
-                const searchResp  = await fetch(
+                const q          = encodeURIComponent(`track:"${song.name}" artist:"${song.artist}"`);
+                const searchResp = await fetch(
                     `https://api.spotify.com/v1/search?q=${q}&type=track&limit=1`,
                     { headers: spotifyHeaders }
                 );
-                const searchData  = await searchResp.json();
-                const id          = searchData?.tracks?.items?.[0]?.id;
+                const searchData = await searchResp.json();
+                const id         = searchData?.tracks?.items?.[0]?.id;
                 return id ? `spotify:track:${id}` : null;
             })
         );
@@ -93,6 +105,6 @@ export default async function handler(req, res) {
 
     } catch(err) {
         console.error('Export error:', err);
-        return res.status(500).json({ error: 'Something went wrong. Please try again.' });
+        return res.status(500).json({ error: err.message || 'Something went wrong. Please try again.' });
     }
 }
