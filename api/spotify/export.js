@@ -29,7 +29,16 @@ export default async function handler(req, res) {
     try {
         // ── STEP 1: Get the user's Spotify ID ──────────────────────────────
         const meRes  = await fetch('https://api.spotify.com/v1/me', { headers });
-        const meData = await meRes.json();
+        const meText = await meRes.text();
+        let meData;
+        try {
+             meData = JSON.parse(meText);
+        } catch(e) {
+             console.error('❌ Spotify returned non-JSON:', meText);
+             return res.status(500).json({ 
+                error: meText.substring(0, 200)  // return the actual Spotify message
+             });
+        }
 
         if (!meData.id) {
             console.error('❌ Could not get Spotify user ID:', meData);
